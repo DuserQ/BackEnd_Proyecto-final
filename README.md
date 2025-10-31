@@ -9,11 +9,10 @@ Capas:
 
 ---
 ## requerimientos
-**instalar cliente de NAS**
-
-sudo apt install wget -y
-wget https://github.com/nats-io/natscli/releases/download/v0.1.5/nats-0.1.5-amd64.deb
-sudo dpkg -i nats-0.1.5-amd64.deb
+**instalar cliente de nas**
+- sudo apt install wget -y
+- wget https://github.com/nats-io/natscli/releases/download/v0.1.5/nats-0.1.5-amd64.deb
+- sudo dpkg -i nats-0.1.5-amd64.deb
 
 
 
