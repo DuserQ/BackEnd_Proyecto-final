@@ -1,0 +1,20 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const helmet_1 = __importDefault(require("helmet"));
+const morgan_1 = __importDefault(require("morgan"));
+const ingest_router_1 = __importDefault(require("./routes/ingest.router"));
+const rules_router_1 = __importDefault(require("./routes/rules.router"));
+const alert_router_1 = __importDefault(require("./routes/alert.router"));
+const app = (0, express_1.default)();
+app.use((0, helmet_1.default)());
+app.use(express_1.default.json({ limit: "10mb" }));
+app.use((0, morgan_1.default)("dev"));
+app.use("/ingest", ingest_router_1.default);
+app.use("/rulesets", rules_router_1.default);
+app.use("/alerts", alert_router_1.default);
+app.get("/healthz", (_req, res) => res.json({ ok: true }));
+exports.default = app;

@@ -1,0 +1,57 @@
+# (tip) 'version' ya es obsoleto en Compose v2; puedes quitarla sin problema.
+
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: ids
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data"
+    restart: unless-stopped
+
+  nats:
+    image: nats:2
+    command: ["--http_port", "8222"]  # asegura el monitor en 8222
+    ports:
+      - "4222:4222"   # clientes NATS
+      - "8222:8222"   # monitor HTTP
+    restart: unless-stopped
+
+  api:
+    build: .
+    working_dir: /app
+    # espera breve a DB; aplica migraciones; arranca API
+    command: sh -c "sleep 3; npx prisma migrate deploy || true; node dist/server.js"
+    env_file: [.env]
+    depends_on:
+      - db
+      - nats
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+
+  # --- Worker detector: escucha eve.suricata y publica alerts.detector ---
+  detector:
+    build: .
+    working_dir: /app
+    command: node dist/workers/detector.worker.js
+    depends_on:
+      - nats
+    env_file: [.env]   # reutiliza NATS_URL si lo tienes ahí
+    restart: unless-stopped
+
+  # --- (Opcional) Caja de herramientas para probar NATS desde la red Docker ---
+  natsbox:
+    image: natsio/nats-box
+    command: /bin/sh -lc "sleep infinity"
+    depends_on:
+      - nats
+    # sin puertos; úsalo con `docker exec -it ... nats sub ...`
+    restart: unless-stopped
+
+volumes:
+  db-data:

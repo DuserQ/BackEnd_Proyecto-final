@@ -1,0 +1,90 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Host {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  labels    Json?
+  createdAt DateTime @default(now())
+  events    Event[]
+  flows     Flow[]
+}
+
+model Flow {
+  id        String    @id @default(cuid())
+  hostId    String
+  fiveTuple String
+  sni       String?
+  ja3       String?
+  tsStart   DateTime
+  tsEnd     DateTime?
+  bytesIn   Int       @default(0)
+  bytesOut  Int       @default(0)
+  features  Feature?
+  scores    Score[]
+  alerts    Alert[]
+  Host      Host      @relation(fields: [hostId], references: [id])
+
+  @@index([hostId, tsStart])
+  @@index([sni])
+  @@index([ja3])
+}
+
+model Feature {
+  flowId String @id
+  v      Json
+  Flow   Flow   @relation(fields: [flowId], references: [id])
+}
+
+model Score {
+  id        String   @id @default(cuid())
+  flowId    String
+  model     String
+  score     Float
+  version   String   @default("1")
+  createdAt DateTime @default(now())
+  Flow      Flow     @relation(fields: [flowId], references: [id])
+
+  @@index([flowId, createdAt])
+}
+
+model Alert {
+  id        String   @id @default(cuid())
+  flowId    String
+  severity  String // low|med|high
+  reason    Json // {rule_hits:[], indicators:[], ...}
+  createdAt DateTime @default(now())
+  Flow      Flow     @relation(fields: [flowId], references: [id])
+
+  @@index([createdAt])
+}
+
+model Rule {
+  id        String   @id @default(cuid())
+  vendor    String // suricata|snort
+  sid       Int
+  name      String
+  body      String
+  enabled   Boolean  @default(true)
+  tags      String[]
+  createdAt DateTime @default(now())
+}
+
+model Event {
+  id      String   @id @default(cuid())
+  hostId  String
+  kind    String // eve|zeek|host-metrics
+  payload Json
+  ts      DateTime @default(now())
+  Host    Host     @relation(fields: [hostId], references: [id])
+
+  @@index([hostId, ts])
+}
