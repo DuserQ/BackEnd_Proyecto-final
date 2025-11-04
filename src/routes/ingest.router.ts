@@ -16,17 +16,17 @@ router.post("/eve", async (req, res, next) => {
     const data = EveSchema.parse(req.body);
     const hostId = data.host_id;
 
-    // 🟩 Aquí insertas el bloque con upsert
+    // Aquí insertas el bloque con upsert
     await prisma.host.upsert({
   where: { id: hostId },
   update: {},
   create: { id: hostId, name: hostId },
 });
 
-    // 🟦 Luego publicas al bus
+    // Luego publicas al bus
     await getNats().publish("eve.suricata", sc.encode(JSON.stringify(data)));
 
-    // 🟨 Finalmente, guardas los eventos
+    // Finalmente, guardas los eventos
     await prisma.$transaction(
       data.events.map((ev: any) =>
         prisma.event.create({
