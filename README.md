@@ -1,6 +1,5 @@
 # IDS Cryptojacking (Clean Architecture) + Prisma + NATS + Postgres
 
----
 ## requerimientos
 **instalar cliente de nas**
 - sudo apt install wget -y
