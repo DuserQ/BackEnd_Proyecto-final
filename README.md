@@ -1,12 +1,5 @@
 # IDS Cryptojacking (Clean Architecture) + Prisma + NATS + Postgres
 
-Capas:
-- **domain/**: entidades del IDS (Host, Event, Rule, Alert) y lógica pura de detección.
-- **application/**: casos de uso y servicios que definen las reglas de negocio (detección, scoring, alertas).
-- **infrastructure/**: Prisma ORM, conexión con NATS, repositorios, configuración de entorno y persistencia.
-- **interfaces/**: API HTTP (Express), controladores `/ingest/*`, validaciones y workers (Detector).
-- **shared/**: esquemas `zod`, tipos compartidos, constantes y helpers.
-
 ---
 ## requerimientos
 **instalar cliente de nas**
